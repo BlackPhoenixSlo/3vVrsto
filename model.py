@@ -176,7 +176,7 @@ class Igra:
         a = 1      
 
         if first % 2 == 0:
-            a = -1 
+            a = 1 
 
         for _ in range (0,5):
 
@@ -187,7 +187,8 @@ class Igra:
                 countratio[st] += 1
                 return
 
-            self.dodam_memo(-a)
+            #self.dodam_memo(-a)
+            self.goodadd()
             _, st = self.konec(self.polje, 0)
 
             if st == 2 or st == 1 or st == -1 :
@@ -208,6 +209,7 @@ class Igra:
                 return
 
             self.dodam_memo()
+            
             _, st = self.konec(self.polje, 1)
             
             if st == 2 or st == 1 or st == -1:
@@ -368,7 +370,7 @@ class Igra:
 
                     test = copy.deepcopy(self.polje)  
 
-        mesto = 4
+        mesto = random.randint(0,8) 
         while self.polje[mesto // 3][mesto % 3] != 0:
             mesto = random.randint(0,8) 
 
