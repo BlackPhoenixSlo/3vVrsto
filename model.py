@@ -8,13 +8,14 @@ polja_memo_forlink = []
 polja_memo = []
 
 countratio={}
-
+import botAI
 class Igra:
 
     def __init__(self):
         import math
         import random
         import copy
+        import botAI
 
         self.last_polje={}
         self.lastset={}
@@ -22,12 +23,90 @@ class Igra:
         countratio[-1]=0
         countratio[1]=0
         countratio[2]=0
+        self.polje = copy.deepcopy(polje_novo)
 
-        self.botvsbot()
+        self.bot1 = botAI.BotAI(1)
+        self.bot2 = botAI.BotAI(-1)
+
+        #self.learn()
+        self.polje = copy.deepcopy(polje_novo)
+
+        #self.soft_botvsbot()
         #print(polja_memo)
-        print(countratio)
+        #print(countratio)
         
-        self.restart()
+        #self.boy_vs_mashine_realAI()
+
+    def learn(self):
+
+        for i in range(2000):
+            self.polje = copy.deepcopy(polje_novo)
+
+            self.learning_course()
+
+            if (i%10==0):
+                print (i)
+                print(countratio)
+
+    
+    def learning_course (self): 
+
+        if (random.randint(0,1)== 1):
+            for _ in range (0,5):
+
+                
+                self.polje = self.bot1.nasledni(self.polje)
+
+                _, st = self.konec(self.polje,0)
+
+                if st == -1:
+                    self.bot2.pomnitev()                 
+                    #self.bot1.pomnitev(3)
+
+                if st == 2 or st == 1 or st == -1 :
+                    countratio[st] += 1
+                    return
+
+                #self.dodam_memo(-1)
+                self.polje = self.bot2.nasledni(self.polje)
+
+                _, st = self.konec(self.polje, 0)
+
+                if st == 1:
+                    self.bot1.pomnitev()
+                    #self.bot2.pomnitev(3)            
+
+                if st == 2 or st == 1 or st == -1 :
+                    countratio[st] += 1
+                    return
+
+        else:
+            for _ in range (0,5):
+
+                
+                #self.dodam_memo(-1)
+                self.polje = self.bot2.nasledni(self.polje)
+
+                _, st = self.konec(self.polje,0)
+
+                if st == 1:
+                    self.bot1.pomnitev()
+                    #self.bot2.pomnitev(3) 
+                if st == 2 or st == 1 or st == -1 :
+                    countratio[st] += 1
+                    return
+
+                self.polje = self.bot1.nasledni(self.polje)
+
+                _, st = self.konec(self.polje, 0)
+
+                if st == -1:
+                    self.bot2.pomnitev()            
+                    #self.bot1.pomnitev(3) 
+                if st == 2 or st == 1 or st == -1 :
+                    countratio[st] += 1
+                    return    
+
 
     def zasuk(self, map):
 
@@ -45,6 +124,7 @@ class Igra:
 
         return copy.deepcopy(polje2)
 
+
     def transponiraj(self, map):
 
         polje2 = copy.deepcopy(polje_novo)
@@ -56,6 +136,7 @@ class Igra:
 
         map = copy.deepcopy(polje2)
         return map
+
 
     def konec(self, map , d = 0 ):
 
@@ -135,9 +216,9 @@ class Igra:
 
         self.izpisi(map, d)
         return (map, 0)
-        
-        
-    def restart(self):
+
+
+    def boy_vs_mashine(self):
         self.polje = copy.deepcopy(polje_novo)
         self.izpisi(self.polje,1)
         
@@ -147,16 +228,35 @@ class Igra:
         self.lastset[-1] = -1
         self.lastset[1] = -1
         
-        self.main()
+        self.real_play()
 
         print("Konec, vpisi karkoli tazen 0 za nadaljevanje")
         a = input()
 
         if int(a) != 0:
-            self.restart()
+            self.boy_vs_mashine()
 
-    def botvsbot(self,rand = 1):
-        for i in range(1000000):
+
+    def boy_vs_mashine_realAI(self , cmd = 0):
+        self.polje = copy.deepcopy(polje_novo)
+        self.izpisi(self.polje,1)
+        
+        self.polje = copy.deepcopy(polje_novo)
+        
+        self.real_play_2_0()
+
+        self.izpisi(self.polje,1)
+
+        print("Konec, vpisi karkoli tazen 0 za nadaljevanje")
+        if (cmd == 1):
+            a = input()
+
+            if int(a) != 0:
+                self.boy_vs_mashine_realAI(1)
+            
+
+    def soft_botvsbot(self,rand = 1):
+        for i in range(100000):
             self.polje = copy.deepcopy(polje_novo)
             if (i%10==0):
                 print (i)
@@ -166,12 +266,13 @@ class Igra:
             self.last_polje[-1] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
             self.lastset[1] = -1
             self.lastset[-1] = -1
-            self.main2(i * rand)
+            self.learning_for_soft_AI(i * rand)
             if (i%10==0):
                 print (i)
                 print(countratio)
 
-    def main2(self, first): 
+
+    def learning_for_soft_AI(self, first): 
 
         a = 1      
 
@@ -188,7 +289,7 @@ class Igra:
                 return
 
             #self.dodam_memo(-a)
-            self.goodadd()
+            self.good_add_for_guy()
             _, st = self.konec(self.polje, 0)
 
             if st == 2 or st == 1 or st == -1 :
@@ -196,8 +297,58 @@ class Igra:
                 return
          
     
+    def real_play_2_0(self):     
+        if (random.randint(0,1)== 1):
+            for _ in range (0,5):
+                self.dodaj()
 
-    def main(self):     
+                _, st = self.konec(self.polje)
+            
+                if st == 1:
+
+                        self.bot1.pomnitev()
+
+                if st == 2 or st == 1 or st == -1:
+                    self.izpisi(self.polje, 1)
+                    return
+
+                self.polje = self.bot1.nasledni(self.polje)
+                
+                _, st = self.konec(self.polje, 1)
+                
+                if st == -1:
+
+                        self.bot1.pomnitev(3)
+                
+                if st == 2 or st == 1 or st == -1:
+                    return
+        else:
+            for _ in range (0,5):
+                
+                self.polje = self.bot1.nasledni(self.polje)
+                
+                _, st = self.konec(self.polje, 1)
+                
+                if st == -1:
+
+                        self.bot1.pomnitev(3)
+                
+                if st == 2 or st == 1 or st == -1:
+                    return
+
+                self.dodaj()
+
+                _, st = self.konec(self.polje)
+
+                if st == 1:
+
+                        self.bot1.pomnitev()
+                if st == 2 or st == 1 or st == -1:
+                    self.izpisi(self.polje, 1)
+                    return
+
+
+    def real_play(self):     
 
         for _ in range (0,5):
             self.dodaj()
@@ -215,7 +366,6 @@ class Igra:
             if st == 2 or st == 1 or st == -1:
                 return
 
-        self.restart()
 
     def dodam_memo(self, op = 1): 
 
@@ -325,7 +475,6 @@ class Igra:
                 mesto = random.randint(0,1)*2
             
             while self.polje[mesto // 3][mesto % 3] != 0:
-                #mesto = random.choice([0,2,6,7]) 
                 mesto = random.randint(0,8) 
 
             self.last_polje[1] = copy.deepcopy(self.polje)
@@ -334,7 +483,7 @@ class Igra:
             self.lastset[op] = mesto
             
    
-    def goodadd(self): 
+    def good_add_for_guy(self): 
 
         test = copy.deepcopy(self.polje)
 
@@ -381,16 +530,28 @@ class Igra:
             return
         
 
-    def dodaj(self):
+    def dodaj(self, a = -1 ):
 
-        mesto = 9-int(input())
-        while self.polje[mesto // 3][2 - mesto % 3] != 0:
+        if a == -1 : 
             mesto = 9-int(input())
 
-        self.polje[mesto // 3][2 - mesto % 3] = 1
-        _, info=self.konec(self.polje)
-        if info == 1 or info == -1:
-            return
+            while self.polje[mesto // 3][2 - mesto % 3] != 0:
+                mesto = 9-int(input())
+
+            self.polje[mesto // 3][2 - mesto % 3] = 1
+            _, info=self.konec(self.polje)
+            if info == 1 or info == -1:
+                return
+        else:
+            mesto = a
+            if self.polje[mesto // 3][ mesto % 3] == 0:
+
+                
+
+                self.polje[mesto // 3][ mesto % 3] = 1
+                _, info=self.konec(self.polje)
+                if info == 1 or info == -1:                
+                    return
         
 
     def izpisi(self, map, d = 0):
@@ -400,4 +561,5 @@ class Igra:
             print("_________")
 
 
-igra= Igra()
+#igra= Igra()
+#igra.boy_vs_mashine_realAI()
