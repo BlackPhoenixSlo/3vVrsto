@@ -30,7 +30,7 @@ def leanAI():
               lose = model.countratio[-1]
               pat = model.countratio[2]
               
-              bottle.template('igra.tpl',win = win, lose = lose, pat = pat, ime0 = ar[0], ime1 = ar[1], ime2 = ar[2], ime3 = ar[3] , ime4 = ar[4], ime5 = ar[5], ime6 = ar[6], ime7 = ar[7], ime8 = ar[8])         
+              bottle.template('view/igra.tpl',win = win, lose = lose, pat = pat, ime0 = ar[0], ime1 = ar[1], ime2 = ar[2], ime3 = ar[3] , ime4 = ar[4], ime5 = ar[5], ime6 = ar[6], ime7 = ar[7], ime8 = ar[8])         
     
     return  bottle.redirect('http://127.0.0.1:8080/new')
 
@@ -93,7 +93,7 @@ def place(end = 0):
         ar[x] = "o.png"
 
     if end == 0:  
-      return   bottle.template('igra.tpl',win = win, lose = lose, pat = pat, ime0 = ar[0], ime1 = ar[1], ime2 = ar[2], ime3 = ar[3] , ime4 = ar[4], ime5 = ar[5], ime6 = ar[6], ime7 = ar[7], ime8 = ar[8])
+      return   bottle.template('view/igra.tpl',win = win, lose = lose, pat = pat, ime0 = ar[0], ime1 = ar[1], ime2 = ar[2], ime3 = ar[3] , ime4 = ar[4], ime5 = ar[5], ime6 = ar[6], ime7 = ar[7], ime8 = ar[8])
     
     else:
       print("jaaaaa")
@@ -117,7 +117,7 @@ def placement2(end):
       if ar[x] == -1 :
         ar[x] = "o.png"
 
-    return  bottle.template('konec.tpl', wl = end , ime0 = ar[0], ime1 = ar[1], ime2 = ar[2], ime3 = ar[3] , ime4 = ar[4], ime5 = ar[5], ime6 = ar[6], ime7 = ar[7], ime8 = ar[8])
+    return  bottle.template('view/konec.tpl', wl = end , ime0 = ar[0], ime1 = ar[1], ime2 = ar[2], ime3 = ar[3] , ime4 = ar[4], ime5 = ar[5], ime6 = ar[6], ime7 = ar[7], ime8 = ar[8])
     
 @bottle.get("/static/<filename>")
 def server_static(filename):
