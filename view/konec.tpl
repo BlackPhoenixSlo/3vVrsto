@@ -4,7 +4,7 @@
 <body>
   <h1>Tri v vrsto</h1>
 
-    <h2>Konec igre, {{wl}} si. </h2>
+    <h2>Konec igre, {{wl}}! </h2>
     <h3>Poskusi ponovno z pritiskom na polje </h3>
 
        <form action="/new">  

@@ -6,7 +6,11 @@ def start():
 
     igra.learn()
     igra.learn()
+    igra.learn()
     
+   
+
+
     #self.soft_botvsbot()
     #print(polja_memo)
     #print(countratio)

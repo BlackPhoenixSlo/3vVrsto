@@ -64,8 +64,8 @@
       <input type="image"  src="/static/aivsai.png" class="btTxt submit" />
       </form>
 
-      <h4>Zmag: {{win}}</h4>
-      <h4>Zgub: {{lose}}</h4>
+      <h4>Zmag, ko gre drugi: {{win}}</h4>
+      <h4>Zmag, ko gre prvi: {{lose}}</h4>
       <h4>Izenačenj: {{pat}}</h4>
 
     

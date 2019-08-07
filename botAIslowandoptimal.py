@@ -7,18 +7,19 @@ polje_novo = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
 
 class BotAI:
+    polja_memo_forlink = {}
     polja_memo = {}
-    # 4 spominske celice, ali zmaga ali zgubi ko gre prvi ali drugi
-    polja_memo["w1"] = []
-    polja_memo["w2"] = []
-    polja_memo["l1"] = []
-    polja_memo["l2"] = []
 
-    # Podam vse spremenljivke in jih nastavim na 0
+    polja_memo_forlink["w1"] = []
+    polja_memo["w1"] = {}
+    polja_memo_forlink["w2"] = []
+    polja_memo["w2"] = {}
+    polja_memo_forlink["l1"] = []
+    polja_memo["l1"] = {}
+    polja_memo_forlink["l2"] = []
+    polja_memo["l2"] = {}
+
     def __init__(self, op=1):
-        import math
-        import random
-        import copy
 
         self.op = op
 
@@ -30,7 +31,6 @@ class BotAI:
 
         self.polje = copy.deepcopy(polje_novo)
 
-    # igralno polje se zavrti za 90° v levo , map = 0 je zaradi spletnega vmesnika
     def zasuk(self, map=0):
 
         if map == 0:
@@ -53,7 +53,6 @@ class BotAI:
 
         return polje2
 
-    # Funkcija za spletni umesnik, igra se začne znova
     def res(self):
 
         self.polje = copy.deepcopy(polje_novo)
@@ -62,22 +61,38 @@ class BotAI:
 
         self.lastset = -1
 
-    # Program vnese spoznanje kam mora oz. nesme postaviti križca/krožca če želi zmagat oz. ne želi izgubutu
+    # V Prešnem AI sem imel za vsak možni izid poraza toliko celic kot je bilo prostih mest
+    # Tukaj za vsak možni poraz le ena celica in to celico zapolnujem z 2 proti porazom oz 3 za zmago
+    # To sem naredil tako, da sem
+    # BotAI.polja_memo[zmaga/zguba/prvi/drugi][str(prejšna_polja)][prejšna_pozicija // 3][prejšna_pozicija % 3]
+    # nastavil na 2 ali 3 po potrebi
+
     def pomnitev(self, placement="l1"):
 
         type1 = 3
         if placement == "l1" or placement == "l2":
             type1 = 2
 
-        self.last_polje[self.lastset // 3][self.lastset % 3] = 0
-
-        self.last_polje[self.lastset // 3][self.lastset % 3] = type1
-
         for _ in range(4):
-            BotAI.polja_memo[placement].append(copy.deepcopy(self.last_polje))
+            # Najprej pa seveda preveril ali takšna pozicija obstaja
+            if self.last_polje in BotAI.polja_memo_forlink[placement]:
+                BotAI.polja_memo[placement][str(self.last_polje).replace(
+                    " ", "")][self.lastset // 3][self.lastset % 3] = type1
+
+            else:
+
+                BotAI.polja_memo_forlink[placement].append(
+                    copy.deepcopy(self.last_polje))
+                test = copy.deepcopy(self.last_polje)
+                self.last_polje[self.lastset // 3][self.lastset % 3] = type1
+
+                BotAI.polja_memo[placement][str(test).replace(
+                    " ", "")] = copy.deepcopy(self.last_polje)
+
+                self.last_polje[self.lastset // 3][self.lastset % 3] = 0
+
             self.last_polje = self.zasuk(copy.deepcopy(self.last_polje))
 
-    # Program določi svojo naslednjo pozicijo na polju za 3 v vrsto
     def nasledni(self, mapa, placement="l1"):
 
         self.polje = mapa
@@ -89,11 +104,11 @@ class BotAI:
         else:
             placement2 = "w2"
 
-        # Preveri če lahko zmaga
         for i in range(9):
             if test[i // 3][i % 3] == 0:
                 test[i // 3][i % 3] = 3
-                if (test in BotAI.polja_memo[placement2]):
+
+                if any([test == BotAI.polja_memo[placement2][str(x).replace(" ", "")] for x in BotAI.polja_memo_forlink[placement2]]):
                     self.last_polje = copy.deepcopy(self.polje)
                     self.polje[i // 3][i % 3] = -op
 
@@ -101,35 +116,25 @@ class BotAI:
                     return copy.deepcopy(self.polje)
                 test[i // 3][i % 3] = 0
 
-        # Da na prazno mesto
-        mesto = random.randint(0, 8)
-        while self.polje[mesto // 3][mesto % 3] != 0:
-            mesto = random.randint(0, 8)
+        # če je polje v poziciji iščem v tej poziciji toliko časa dokler ne najdem praznega polja,
+        # če take pozicije ni, kličem pomnitem
 
-        test[mesto // 3][mesto % 3] = 2
-
-        # Preveri, da ne bo igubil zaradi postavitve na to mesto
-        if (test in BotAI.polja_memo[placement]):
-            test[mesto // 3][mesto % 3] = 0
-            # V Primeru da izgubi preveri ali obstaja kakšno drugo pravilno mesto
+        if (test in BotAI.polja_memo_forlink[placement]):
             for i in range(9):
-                if test[i // 3][i % 3] == 0:
-                    test[i // 3][i % 3] = 2
-
-                    if (not test in BotAI.polja_memo[placement]):
-
+                if str(test).replace(" ", "") in BotAI.polja_memo:
+                    if BotAI.polja_memo[placement][str(test).replace(" ", "")][i // 3][i % 3] == 0:
                         test[i // 3][i % 3] = -op
                         self.polje = copy.deepcopy(test)
                         self.lastset = i
                         self.last_polje = copy.deepcopy(self.polje)
                         return copy.deepcopy(self.polje)
+                    self.pomnitev()
 
-                    test[i // 3][i % 3] = 0
-            # Če takšnega mesta ni si zapomni da na prejšno pozicijo nesme dati križca ali krožca
-            self.pomnitev()
-            # Program nadaljuje kot da neve da nesme postaviti na prvotno mesto
+        mesto = random.randint(0, 8)
 
-        # Program postavi na mesto križec ali krožec in konča
+        while self.polje[mesto // 3][mesto % 3] != 0:
+            mesto = random.randint(0, 8)
+
         self.last_polje = copy.deepcopy(self.polje)
         self.polje[mesto // 3][mesto % 3] = -op
 
